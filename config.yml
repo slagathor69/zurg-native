@@ -5,12 +5,12 @@ token: yourtoken
 # username:
 # password:
 # proxy:
-# concurrent_workers: 20
-check_for_changes_every_secs: 10
+concurrent_workers: 32
+check_for_changes_every_secs: 5
 # repair_every_mins: 60
-# ignore_renames: false
-# retain_rd_torrent_name: false
-# retain_folder_name_extension: false
+ignore_renames: false
+retain_rd_torrent_name: false
+retain_folder_name_extension: false
 enable_repair: true
 auto_delete_rar_torrents: true
 # api_timeout_secs: 15
@@ -27,13 +27,6 @@ on_library_update: sh plex_update.sh "$@"
 #on_library_update: '& powershell -ExecutionPolicy Bypass -File .\plex_update.ps1 --% "$args"'
 
 directories:
-  anime:
-    group_order: 10
-    group: media
-    filters:
-      - regex: /\b[a-fA-F0-9]{8}\b/
-      - any_file_inside_regex: /\b[a-fA-F0-9]{8}\b/
-
   shows:
     group_order: 20
     group: media
