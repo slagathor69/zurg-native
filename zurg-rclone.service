@@ -4,17 +4,15 @@ After=network-online.target
 
 [Service]
 Type=notify
-ExecStart=/home/yowmamasita/go/bin/rclone mount \
-  --config=/home/yowmamasita/.config/rclone/rclone.conf \
+ExecStart=/opt/zurg-testing/rclone mount \
+  --config=/opt/zurg-testing/rclone.conf \
   --log-level=INFO \
-  --log-file=/opt/rclone/logs/zurg.log \
-  --gid=1000 \
-  --uid=1000 \
+  --log-file=/opt/zurg-testing/logs/zurg.log \
   --allow-other \
-  --cache-dir=/opt/rclone/cache/zurg \
+  --cache-dir=/opt/zurg-testing/cache/zurg \
   --dir-cache-time=20s \
-  zurg: /mnt/zurg
-ExecStop=/bin/bash -c '/bin/fusermount -uz /mnt/zurg; umount /mnt/zurg'
+  zurg: /media/zurg
+ExecStop=/bin/bash -c '/bin/fusermount -uz /media/zurg; umount /media/zurg'
 Restart=on-abort
 RestartSec=1
 StartLimitInterval=60s
