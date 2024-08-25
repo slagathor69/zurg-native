@@ -1,11 +1,11 @@
 Add-Type -AssemblyName System.Web
  
 # Plex server details - EDIT BELOW
-$plexUrl = "http://plex-ip:32400"
-$plexToken = "your-plex-token"
+$plexUrl = "http://localhost:32400"
+$plexToken = "yourplextoken"
  
 # Replace with your mount - EDIT BELOW
-$mount = "Z:"
+$mount = "/media/zurg"
  
 $path = $args[2]
 
@@ -18,7 +18,7 @@ function UrlEncode($value) {
 }
  
 # Example path to a log - EDIT BELOW
-Start-Transcript -Path "C:\Path\To\zurg-testing\logs\plex_update.log"
+Start-Transcript -Path "/opt/zurg-testing/logs/plex_update.log"
  
 # Function to trigger library update for a specific folder
 function UpdateFolder($retries) {
@@ -61,7 +61,7 @@ function UpdateFolder($retries) {
 }
 
 # Function to trigger library update for a specific folder
-function UpdateFolderLast5($folder, $directory) {
+function UpdateFolderLastMin($folder, $directory) {
     $section_ids = (Invoke-WebRequest -Uri "$plexUrl/library/sections" -Headers @{"X-Plex-Token" = $plexToken} -UseBasicParsing -Method Get).Content |
     Select-Xml -XPath "//Directory/@key" |
     ForEach-Object { $_.Node.Value }
@@ -93,9 +93,9 @@ function UpdateFolderLast5($folder, $directory) {
     }
 }
 
-# Function to update folders within the last 5 minutes
-function UpdateFoldersWithinLast5Minutes($directories, $retries) {
-    $startTime = (Get-Date).AddMinutes(-5)
+# Function to update folders within the last 1 minute
+function UpdateFoldersWithinLastMinute($directories, $retries) {
+    $startTime = (Get-Date).AddMinutes(-1)
     $foundNewItem = $false
 
     foreach ($directory in $directories) {
@@ -103,13 +103,13 @@ function UpdateFoldersWithinLast5Minutes($directories, $retries) {
 
         if ($folders.Count -gt 0) {
             $foundNewItem = $true
-            Write-Host "Folders found in $directory modified within the last 5 minutes:"
+            Write-Host "Folders found in $directory modified within the last minute:"
             
             foreach ($folder in $folders) {
-                UpdateFolderLast5 $folder $directory
+                UpdateFolderLastMin $folder $directory
             }
         } else {
-            Write-Host "No folders found in $directory modified within the last 5 minutes."
+            Write-Host "No folders found in $directory modified within the last minute."
         }
     }
 
@@ -119,17 +119,17 @@ function UpdateFoldersWithinLast5Minutes($directories, $retries) {
             Write-Host "Retries: $retries"
             Write-Host "Trying again..."
             Start-Sleep -Seconds 1
-            UpdateFoldersWithinLast5Minutes $directories $retries
+            UpdateFoldersWithinLastMinute $directories $retries
         }
     }
 }
  
 # Example usage - REPLACE WITH YOUR DIRECTORIES
-$directoriesToUpdate = @("Z:\movies","Z:\anime","Z:\shows","Z:\movies4k","Z:\shows4k")
+$directoriesToUpdate = @("/media/zurg/movies","/media/zurg/shows")
  
 if ($args.length -gt 4) {
-    Write-Host "Update within last 5 minutes"
-    UpdateFoldersWithinLast5Minutes $directoriesToUpdate $retryAmount
+    Write-Host "Update within last minute"
+    UpdateFoldersWithinLastMinute $directoriesToUpdate $retryAmount
 }
 else {
     Write-Host "Normal method"
